@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include <ctype.h>
 
 #define MAX_PATIENTS 1000
 #define MAX_RECORDS 1000
@@ -34,91 +33,6 @@ Patient patients[MAX_PATIENTS];
 MedicalRecord records[MAX_RECORDS];
 int patient_count = 0;
 int record_count = 0;
-
-// Fungsi untuk mengonversi nama bulan dari bahasa Indonesia ke bahasa Inggris
-const char* convert_month(const char* month) {
-    if (strcasecmp(month, "Januari") == 0) return "Jan";
-    if (strcasecmp(month, "Februari") == 0) return "Feb";
-    if (strcasecmp(month, "Maret") == 0) return "Mar";
-    if (strcasecmp(month, "April") == 0) return "Apr";
-    if (strcasecmp(month, "Mei") == 0) return "Mei";
-    if (strcasecmp(month, "Juni") == 0) return "Jun";
-    if (strcasecmp(month, "Juli") == 0) return "Jul";
-    if (strcasecmp(month, "Agustus") == 0) return "Agu";
-    if (strcasecmp(month, "September") == 0) return "Sep";
-    if (strcasecmp(month, "Oktober") == 0) return "Okt";
-    if (strcasecmp(month, "November") == 0) return "Nov";
-    if (strcasecmp(month, "Desember") == 0) return "Des";
-    return month;
-}
-
-// Fungsi untuk mengonversi nama bulan ke angka bulan (0-11)
-int convert_month_to_int(const char* month) {
-    if (strcasecmp(month, "Jan") == 0) return 0;
-    if (strcasecmp(month, "Feb") == 0) return 1;
-    if (strcasecmp(month, "Mar") == 0) return 2;
-    if (strcasecmp(month, "Apr") == 0) return 3;
-    if (strcasecmp(month, "Mei") == 0) return 4;
-    if (strcasecmp(month, "Jun") == 0) return 5;
-    if (strcasecmp(month, "Jul") == 0) return 6;
-    if (strcasecmp(month, "Agu") == 0) return 7;
-    if (strcasecmp(month, "Sep") == 0) return 8;
-    if (strcasecmp(month, "Okt") == 0) return 9;
-    if (strcasecmp(month, "Nov") == 0) return 10;
-    if (strcasecmp(month, "Des") == 0) return 11;
-    return -1; // Jika bulan tidak valid
-}
-
-// Implementasi strptime sederhana
-char *my_strptime(const char *buf, const char *format, struct tm *tm) {
-    memset(tm, 0, sizeof(struct tm));
-    char *ret = NULL;
-    if (strcmp(format, "%d-%b-%y") == 0) {
-        ret = (char *)buf;
-        char month[4] = {0};
-        int year;
-        if (sscanf(buf, "%2d-%3s-%2d", &tm->tm_mday, month, &year) == 3) {
-            // Convert month to lowercase
-            for (char *p = month; *p; ++p) *p = tolower(*p);
-
-            // Map abbreviated month to tm_mon
-            tm->tm_mon = convert_month_to_int(month);
-            tm->tm_year = year + 100; // Karena year 00 adalah 2000, 23 adalah 2023
-            ret = ret + 9; // move pointer to the end of parsed date
-        }
-    } else if (strcmp(format, "%d %B %Y") == 0) {
-        ret = (char *)buf;
-        char month[10];
-        int year;
-        if (sscanf(buf, "%2d %9s %4d", &tm->tm_mday, month, &year) == 3) {
-            // Convert month name to month number
-            const char *english_month = convert_month(month);
-            strncpy(month, english_month, sizeof(month));
-            tm->tm_mon = convert_month_to_int(month);
-            tm->tm_year = year - 1900;
-            ret = ret + strlen(buf); // move pointer to the end of parsed date
-        }
-    }
-    if (ret && *ret != '\0') ret = NULL; // parsing failed
-    return ret;
-}
-
-// Fungsi untuk parsing tanggal dengan dua format berbeda
-int parse_date(const char *date_str, struct tm *date) {
-    char *ret;
-    memset(date, 0, sizeof(struct tm));
-
-    // Coba parsing format pertama: DD-MMM-YY
-    ret = my_strptime(date_str, "%d-%b-%y", date);
-    if (ret && *ret == '\0') return 1;
-
-    // Coba parsing format kedua: DD MMMM YYYY
-    ret = my_strptime(date_str, "%d %B %Y", date);
-    if (ret && *ret == '\0') return 1;
-
-    // Parsing gagal
-    return 0;
-}
 
 char *strptime(const char *buf, const char *format, struct tm *tm) {
     return strptime(buf, format, tm);
@@ -251,24 +165,24 @@ void add_patient() {
 void update_patient() {
     char patient_id[20];
     printf("Enter Patient ID to update: ");
-    scanf(" %19[^\n]", patient_id);
+    scanf(" %[^\n]", patient_id);
 
     for (int i = 0; i < patient_count; i++) {
-        if (strcmp(patients[i].patient_id, patient_id) == 0) {
+        if (strcmp(patients[i].patient_id, patient_id) == 1) {
             printf("Enter new Full Name: ");
-            scanf(" %99[^\n]", patients[i].full_name);
+            scanf(" %[^\n]", patients[i].full_name);
             printf("Enter new Address: ");
-            scanf(" %149[^\n]", patients[i].address);
+            scanf(" %[^\n]", patients[i].address);
             printf("Enter new City: ");
-            scanf(" %49[^\n]", patients[i].city);
+            scanf(" %[^\n]", patients[i].city);
             printf("Enter new Birth Place: ");
-            scanf(" %49[^\n]", patients[i].birth_place);
+            scanf(" %[^\n]", patients[i].birth_place);
             printf("Enter new Birth Date (DD MMM YYYY): ");
-            scanf(" %29[^\n]", patients[i].birth_date);
+            scanf(" %[^\n]", patients[i].birth_date);
             printf("Enter new Age: ");
             scanf("%d", &patients[i].age);
             printf("Enter new BPJS Number: ");
-            scanf(" %19[^\n]", patients[i].bpjs_number);
+            scanf(" %[^\n]", patients[i].bpjs_number);
 
             // Update CSV file
             FILE *file = fopen("data1.csv", "w");
@@ -293,39 +207,33 @@ void update_patient() {
 void delete_patient() {
     char patient_id[20];
     printf("Enter Patient ID to delete: ");
-    scanf(" %19[^\n]", patient_id);
+    scanf(" %[^\n]", patient_id);
 
-    int found = 0;
     for (int i = 0; i < patient_count; i++) {
-        if (strcmp(patients[i].patient_id, patient_id) == 0) {
-            found = 1;
-            // Shift remaining patients left to overwrite the deleted patient
+        if (strcmp(patients[i].patient_id, patient_id) == 1) {
             for (int j = i; j < patient_count - 1; j++) {
                 patients[j] = patients[j + 1];
             }
             patient_count--;
-            break;
-        }
-    }
 
-    if (found) {
-        // Update CSV file
-        FILE *file = fopen("data1.csv", "w");
-        if (!file) {
-            printf("Could not open file data1.csv for writing\n");
+            // Update CSV file
+            FILE *file = fopen("data1.csv", "w");
+            if (!file) {
+                printf("Could not open file data1.csv for writing\n");
+                return;
+            }
+
+            fprintf(file, "ID;Full Name;Address;City;Birth Place;Birth Date;Age;BPJS Number;Patient ID\n");
+            for (int j = 0; j < patient_count; j++) {
+                fprintf(file, "%d;%s;%s;%s;%s;%s;%d;%s;%s\n", patients[j].id, patients[j].full_name, patients[j].address, patients[j].city, patients[j].birth_place, patients[j].birth_date, patients[j].age, patients[j].bpjs_number, patients[j].patient_id);
+            }
+            fclose(file);
+
+            printf("Patient deleted successfully!\n");
             return;
         }
-
-        fprintf(file, "ID;Full Name;Address;City;Birth Place;Birth Date;Age;BPJS Number;Patient ID\n");
-        for (int j = 0; j < patient_count; j++) {
-            fprintf(file, "%d;%s;%s;%s;%s;%s;%d;%s;%s\n", patients[j].id, patients[j].full_name, patients[j].address, patients[j].city, patients[j].birth_place, patients[j].birth_date, patients[j].age, patients[j].bpjs_number, patients[j].patient_id);
-        }
-        fclose(file);
-
-        printf("Patient deleted successfully!\n");
-    } else {
-        printf("Patient not found.\n");
     }
+    printf("Patient not found.\n");
 }
 
 void add_medical_record() {
@@ -500,12 +408,37 @@ void generate_income_report() {
 
     double monthly_income[12] = {0};
     double yearly_income = 0;
+    int search_year;
+    int search_bulan;
 
     for (int i = 0; i < record_count; i++) {
-        struct tm visit_date = {0};
-        strptime(records[i].visit_date, "%d %b %Y", &visit_date);
-        if (visit_date.tm_year + 1900 == year) {
-            monthly_income[visit_date.tm_mon] += records[i].cost;
+        char charbulan[4] = {0};
+        char charyear[5] = {0};
+        strncpy(charyear, &records[i].visit_date[strlen(records[i].visit_date) - 4], 4);
+        search_year = atoi(charyear);
+
+        if (records[i].visit_date[1] == ' ') {
+            strncpy(charbulan, &records[i].visit_date[2], 3);
+        } else {
+            strncpy(charbulan, &records[i].visit_date[3], 3);
+        }
+        charbulan[3] = '\0';
+
+        if (strcmp(charbulan, "Jan") == 0) search_bulan = 0;
+        else if (strcmp(charbulan, "Feb") == 0) search_bulan = 1;
+        else if (strcmp(charbulan, "Mar") == 0) search_bulan = 2;
+        else if (strcmp(charbulan, "Apr") == 0) search_bulan = 3;
+        else if (strcmp(charbulan, "Mei") == 0) search_bulan = 4;
+        else if (strcmp(charbulan, "Jun") == 0) search_bulan = 5;
+        else if (strcmp(charbulan, "Jul") == 0) search_bulan = 6;
+        else if (strcmp(charbulan, "Agu") == 0) search_bulan = 7;
+        else if (strcmp(charbulan, "Sep") == 0) search_bulan = 8;
+        else if (strcmp(charbulan, "Okt") == 0) search_bulan = 9;
+        else if (strcmp(charbulan, "Nov") == 0) search_bulan = 10;
+        else if (strcmp(charbulan, "Des") == 0) search_bulan = 11;
+
+        if (search_year == year) {
+            monthly_income[search_bulan] += records[i].cost;
             yearly_income += records[i].cost;
         }
     }
@@ -518,15 +451,6 @@ void generate_income_report() {
 }
 
 void generate_patient_statistics() {
-    /*
-    Fungsi untuk mengenerate statistik: 
-    - Menerima input "year" dan digunakan data "record"
-    - Mengprint jumlah pasien tiap bulan untuk suatu "year"
-    - Mengprint total pasien pada suatu "year"  
-    - mengprint jumlah pasien tiap suatu diagnosis pada suatu "year"
-    */
-
-   //Input tahun dan insialasisi variable yang digunakan
     int year;
     printf("Enter year for patient statistics: ");
     scanf("%d", &year);
@@ -539,9 +463,8 @@ void generate_patient_statistics() {
     int diagnosis_index = 0;
 
     for (int i = 0; i < record_count; i++) {
-        //
         struct tm visit_date = {0};
-        parse_date(records[i].visit_date ,&visit_date );
+        strptime(records[i].visit_date, "%d %b %Y", &visit_date);
         if (visit_date.tm_year + 1900 == year) {
             monthly_patient_count[visit_date.tm_mon]++;
             total_patient_count++;
@@ -574,36 +497,22 @@ void generate_patient_statistics() {
 }
 
 void check_follow_up() {
-    int day, month, year;
-    int count = 0;
-    printf("\nEnter the date (DD MM YY) to check follow-ups: ");
-    scanf("%d %d %d", &day, &month, &year);
+    time_t now;
+    time(&now);
+    struct tm *current_time = localtime(&now);
 
-    struct tm input_date = {0};
-    input_date.tm_mday = day;
-    input_date.tm_mon = month - 1; // tm_mon is 0-11
-    input_date.tm_year = year + 100; // Karena year 00 adalah 2000, 23 adalah 2023
-
-    time_t now = mktime(&input_date);
-
-    printf("Patients who need follow-up as of %02d-%02d-%02d:\n", day, month, year);
+    printf("Patients who need follow-up:\n");
     for (int i = 0; i < record_count; i++) {
         struct tm follow_up_date = {0};
-        if (parse_date(records[i].follow_up_date, &follow_up_date)) {
-            time_t follow_up_time = mktime(&follow_up_date);
-            if (difftime(follow_up_time, now) >= 0) {
-                count ++;
-                printf("%2d. %s ",(i), records[i].patient_id);
-                printf(" %02d-%02d-%02d\n", follow_up_date.tm_mday, follow_up_date.tm_mon + 1, follow_up_date.tm_year % 100); 
-            } 
-            
-        } else {
-            printf("Failed to parse date: %s\n", records[i].follow_up_date); 
+        strptime(records[i].follow_up_date, "%d %b %Y", &follow_up_date);
+        if (difftime(mktime(&follow_up_date), now) <= 0) {
+            for (int j = 0; j < patient_count; j++) {
+                if (strcmp(patients[j].patient_id, records[i].patient_id) == 0) {
+                    printf("Patient ID: %s, Name: %s, Follow-Up Date: %s\n", patients[j].patient_id, patients[j].full_name, records[i].follow_up_date);
+                    break;
+                }
+            }
         }
-    }
-    
-    if (count == 0){
-        printf("No follow-up schedule.\n");
     }
 }
 
@@ -672,3 +581,4 @@ int main() {
 
     return 0;
 }
+
