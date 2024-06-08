@@ -573,13 +573,11 @@ void check_follow_up() {
     printf("Patients who need follow-up as of %02d-%02d-%02d:\n", day, month, year);
     for (int i = 0; i < record_count; i++) {
         struct tm follow_up_date = {0};
-        // printf("Parsing date: %s\n", records[i].follow_up_date); // Debug output
         if (parse_date(records[i].follow_up_date, &follow_up_date)) {
             time_t follow_up_time = mktime(&follow_up_date);
-            // printf("Parsed follow-up date: %02d-%02d-%02d\n", follow_up_date.tm_mday, follow_up_date.tm_mon + 1, follow_up_date.tm_year % 100); // Debug output
             if (difftime(follow_up_time, now) >= 0) {
                 count ++;
-                printf("%d. %s ",(i), records[i].patient_id);
+                printf("%2d. %s ",(i), records[i].patient_id);
                 printf(" %02d-%02d-%02d\n", follow_up_date.tm_mday, follow_up_date.tm_mon + 1, follow_up_date.tm_year % 100); // Debug output
             } 
             
