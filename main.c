@@ -578,11 +578,11 @@ void check_follow_up() {
             if (difftime(follow_up_time, now) >= 0) {
                 count ++;
                 printf("%2d. %s ",(i), records[i].patient_id);
-                printf(" %02d-%02d-%02d\n", follow_up_date.tm_mday, follow_up_date.tm_mon + 1, follow_up_date.tm_year % 100); // Debug output
+                printf(" %02d-%02d-%02d\n", follow_up_date.tm_mday, follow_up_date.tm_mon + 1, follow_up_date.tm_year % 100); 
             } 
             
         } else {
-            printf("Failed to parse date: %s\n", records[i].follow_up_date); // Debug output
+            printf("Failed to parse date: %s\n", records[i].follow_up_date); 
         }
     }
     
