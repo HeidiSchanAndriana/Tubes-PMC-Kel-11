@@ -103,6 +103,23 @@ char *my_strptime(const char *buf, const char *format, struct tm *tm) {
     return ret;
 }
 
+// Fungsi untuk parsing tanggal dengan dua format berbeda
+int parse_date(const char *date_str, struct tm *date) {
+    char *ret;
+    memset(date, 0, sizeof(struct tm));
+
+    // Coba parsing format pertama: DD-MMM-YY
+    ret = my_strptime(date_str, "%d-%b-%y", date);
+    if (ret && *ret == '\0') return 1;
+
+    // Coba parsing format kedua: DD MMMM YYYY
+    ret = my_strptime(date_str, "%d %B %Y", date);
+    if (ret && *ret == '\0') return 1;
+
+    // Parsing gagal
+    return 0;
+}
+
 char *strptime(const char *buf, const char *format, struct tm *tm) {
     return strptime(buf, format, tm);
 }
@@ -495,6 +512,15 @@ void generate_income_report() {
 }
 
 void generate_patient_statistics() {
+    /*
+    Fungsi untuk mengenerate statistik: 
+    - Menerima input "year" dan digunakan data "record"
+    - Mengprint jumlah pasien tiap bulan untuk suatu "year"
+    - Mengprint total pasien pada suatu "year"  
+    - mengprint jumlah pasien tiap suatu diagnosis pada suatu "year"
+    */
+
+   //Input tahun dan insialasisi variable yang digunakan
     int year;
     printf("Enter year for patient statistics: ");
     scanf("%d", &year);
@@ -507,8 +533,9 @@ void generate_patient_statistics() {
     int diagnosis_index = 0;
 
     for (int i = 0; i < record_count; i++) {
+        //
         struct tm visit_date = {0};
-        strptime(records[i].visit_date, "%d %b %Y", &visit_date);
+        parse_date(records[i].visit_date ,&visit_date );
         if (visit_date.tm_year + 1900 == year) {
             monthly_patient_count[visit_date.tm_mon]++;
             total_patient_count++;
@@ -538,23 +565,6 @@ void generate_patient_statistics() {
     for (int i = 0; i < diagnosis_index; i++) {
         printf("%s: %d\n", diagnoses[i], diagnosis_count[i]);
     }
-}
-
-// Fungsi untuk parsing tanggal dengan dua format berbeda
-int parse_date(const char *date_str, struct tm *date) {
-    char *ret;
-    memset(date, 0, sizeof(struct tm));
-
-    // Coba parsing format pertama: DD-MMM-YY
-    ret = my_strptime(date_str, "%d-%b-%y", date);
-    if (ret && *ret == '\0') return 1;
-
-    // Coba parsing format kedua: DD MMMM YYYY
-    ret = my_strptime(date_str, "%d %B %Y", date);
-    if (ret && *ret == '\0') return 1;
-
-    // Parsing gagal
-    return 0;
 }
 
 void check_follow_up() {
