@@ -251,24 +251,24 @@ void add_patient() {
 void update_patient() {
     char patient_id[20];
     printf("Enter Patient ID to update: ");
-    scanf(" %[^\n]", patient_id);
+    scanf(" %19[^\n]", patient_id);
 
     for (int i = 0; i < patient_count; i++) {
-        if (strcmp(patients[i].patient_id, patient_id) == 1) {
+        if (strcmp(patients[i].patient_id, patient_id) == 0) {
             printf("Enter new Full Name: ");
-            scanf(" %[^\n]", patients[i].full_name);
+            scanf(" %99[^\n]", patients[i].full_name);
             printf("Enter new Address: ");
-            scanf(" %[^\n]", patients[i].address);
+            scanf(" %149[^\n]", patients[i].address);
             printf("Enter new City: ");
-            scanf(" %[^\n]", patients[i].city);
+            scanf(" %49[^\n]", patients[i].city);
             printf("Enter new Birth Place: ");
-            scanf(" %[^\n]", patients[i].birth_place);
+            scanf(" %49[^\n]", patients[i].birth_place);
             printf("Enter new Birth Date (DD MMM YYYY): ");
-            scanf(" %[^\n]", patients[i].birth_date);
+            scanf(" %29[^\n]", patients[i].birth_date);
             printf("Enter new Age: ");
             scanf("%d", &patients[i].age);
             printf("Enter new BPJS Number: ");
-            scanf(" %[^\n]", patients[i].bpjs_number);
+            scanf(" %19[^\n]", patients[i].bpjs_number);
 
             // Update CSV file
             FILE *file = fopen("data1.csv", "w");
@@ -293,33 +293,39 @@ void update_patient() {
 void delete_patient() {
     char patient_id[20];
     printf("Enter Patient ID to delete: ");
-    scanf(" %[^\n]", patient_id);
+    scanf(" %19[^\n]", patient_id);
 
+    int found = 0;
     for (int i = 0; i < patient_count; i++) {
-        if (strcmp(patients[i].patient_id, patient_id) == 1) {
+        if (strcmp(patients[i].patient_id, patient_id) == 0) {
+            found = 1;
+            // Shift remaining patients left to overwrite the deleted patient
             for (int j = i; j < patient_count - 1; j++) {
                 patients[j] = patients[j + 1];
             }
             patient_count--;
-
-            // Update CSV file
-            FILE *file = fopen("data1.csv", "w");
-            if (!file) {
-                printf("Could not open file data1.csv for writing\n");
-                return;
-            }
-
-            fprintf(file, "ID;Full Name;Address;City;Birth Place;Birth Date;Age;BPJS Number;Patient ID\n");
-            for (int j = 0; j < patient_count; j++) {
-                fprintf(file, "%d;%s;%s;%s;%s;%s;%d;%s;%s\n", patients[j].id, patients[j].full_name, patients[j].address, patients[j].city, patients[j].birth_place, patients[j].birth_date, patients[j].age, patients[j].bpjs_number, patients[j].patient_id);
-            }
-            fclose(file);
-
-            printf("Patient deleted successfully!\n");
-            return;
+            break;
         }
     }
-    printf("Patient not found.\n");
+
+    if (found) {
+        // Update CSV file
+        FILE *file = fopen("data1.csv", "w");
+        if (!file) {
+            printf("Could not open file data1.csv for writing\n");
+            return;
+        }
+
+        fprintf(file, "ID;Full Name;Address;City;Birth Place;Birth Date;Age;BPJS Number;Patient ID\n");
+        for (int j = 0; j < patient_count; j++) {
+            fprintf(file, "%d;%s;%s;%s;%s;%s;%d;%s;%s\n", patients[j].id, patients[j].full_name, patients[j].address, patients[j].city, patients[j].birth_place, patients[j].birth_date, patients[j].age, patients[j].bpjs_number, patients[j].patient_id);
+        }
+        fclose(file);
+
+        printf("Patient deleted successfully!\n");
+    } else {
+        printf("Patient not found.\n");
+    }
 }
 
 void add_medical_record() {
