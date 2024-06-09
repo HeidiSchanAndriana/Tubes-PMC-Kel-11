@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <ctype.h>
 
 #define MAX_PATIENTS 1000
 #define MAX_RECORDS 1000
@@ -496,23 +497,122 @@ void generate_patient_statistics() {
     }
 }
 
-void check_follow_up() {
-    time_t now;
-    time(&now);
-    struct tm *current_time = localtime(&now);
+// Fungsi untuk mengonversi nama bulan dari bahasa Indonesia ke bahasa Inggris
+const char* convert_month(const char* month) {
+    if (strcasecmp(month, "Januari") == 0) return "Jan";
+    if (strcasecmp(month, "Februari") == 0) return "Feb";
+    if (strcasecmp(month, "Maret") == 0) return "Mar";
+    if (strcasecmp(month, "April") == 0) return "Apr";
+    if (strcasecmp(month, "Mei") == 0) return "Mei";
+    if (strcasecmp(month, "Juni") == 0) return "Jun";
+    if (strcasecmp(month, "Juli") == 0) return "Jul";
+    if (strcasecmp(month, "Agustus") == 0) return "Agu";
+    if (strcasecmp(month, "September") == 0) return "Sep";
+    if (strcasecmp(month, "Oktober") == 0) return "Okt";
+    if (strcasecmp(month, "November") == 0) return "Nov";
+    if (strcasecmp(month, "Desember") == 0) return "Des";
+    return month;
+}
 
-    printf("Patients who need follow-up:\n");
+// Fungsi untuk mengonversi nama bulan ke angka bulan (0-11)
+int convert_month_to_int(const char* month) {
+    if (strcasecmp(month, "Jan") == 0) return 0;
+    if (strcasecmp(month, "Feb") == 0) return 1;
+    if (strcasecmp(month, "Mar") == 0) return 2;
+    if (strcasecmp(month, "Apr") == 0) return 3;
+    if (strcasecmp(month, "Mei") == 0) return 4;
+    if (strcasecmp(month, "Jun") == 0) return 5;
+    if (strcasecmp(month, "Jul") == 0) return 6;
+    if (strcasecmp(month, "Agu") == 0) return 7;
+    if (strcasecmp(month, "Sep") == 0) return 8;
+    if (strcasecmp(month, "Okt") == 0) return 9;
+    if (strcasecmp(month, "Nov") == 0) return 10;
+    if (strcasecmp(month, "Des") == 0) return 11;
+    return -1; // Jika bulan tidak valid
+}
+
+// Implementasi strptime sederhana
+char *my_strptime(const char *buf, const char *format, struct tm *tm) {
+    memset(tm, 0, sizeof(struct tm));
+    char *ret = NULL;
+    if (strcmp(format, "%d-%b-%y") == 0) {
+        ret = (char *)buf;
+        char month[4] = {0};
+        int year;
+        if (sscanf(buf, "%2d-%3s-%2d", &tm->tm_mday, month, &year) == 3) {
+            // Convert month to lowercase
+            for (char *p = month; *p; ++p) *p = tolower(*p);
+
+            // Map abbreviated month to tm_mon
+            tm->tm_mon = convert_month_to_int(month);
+            tm->tm_year = year + 100; // Karena year 00 adalah 2000, 23 adalah 2023
+            ret = ret + 9; // move pointer to the end of parsed date
+        }
+    } else if (strcmp(format, "%d %B %Y") == 0) {
+        ret = (char *)buf;
+        char month[10];
+        int year;
+        if (sscanf(buf, "%2d %9s %4d", &tm->tm_mday, month, &year) == 3) {
+            // Convert month name to month number
+            const char *english_month = convert_month(month);
+            strncpy(month, english_month, sizeof(month));
+            tm->tm_mon = convert_month_to_int(month);
+            tm->tm_year = year - 1900;
+            ret = ret + strlen(buf); // move pointer to the end of parsed date
+        }
+    }
+    if (ret && *ret != '\0') ret = NULL; // parsing failed
+    return ret;
+}
+
+// Fungsi untuk parsing tanggal dengan dua format berbeda
+int parse_date(const char *date_str, struct tm *date) {
+    char *ret;
+    memset(date, 0, sizeof(struct tm));
+
+    // Coba parsing format pertama: DD-MMM-YY
+    ret = my_strptime(date_str, "%d-%b-%y", date);
+    if (ret && *ret == '\0') return 1;
+
+    // Coba parsing format kedua: DD MMMM YYYY
+    ret = my_strptime(date_str, "%d %B %Y", date);
+    if (ret && *ret == '\0') return 1;
+
+    // Parsing gagal
+    return 0;
+}
+
+void check_follow_up() {
+    int day, month, year;
+    int count = 0;
+    printf("\nEnter the date (DD MM YY) to check follow-ups: ");
+    scanf("%d %d %d", &day, &month, &year);
+
+    struct tm input_date = {0};
+    input_date.tm_mday = day;
+    input_date.tm_mon = month - 1; // tm_mon is 0-11
+    input_date.tm_year = year + 100; // Karena year 00 adalah 2000, 23 adalah 2023
+
+    time_t now = mktime(&input_date);
+
+    printf("Patients who need follow-up as of %02d-%02d-%02d:\n", day, month, year);
     for (int i = 0; i < record_count; i++) {
         struct tm follow_up_date = {0};
-        strptime(records[i].follow_up_date, "%d %b %Y", &follow_up_date);
-        if (difftime(mktime(&follow_up_date), now) <= 0) {
-            for (int j = 0; j < patient_count; j++) {
-                if (strcmp(patients[j].patient_id, records[i].patient_id) == 0) {
-                    printf("Patient ID: %s, Name: %s, Follow-Up Date: %s\n", patients[j].patient_id, patients[j].full_name, records[i].follow_up_date);
-                    break;
-                }
-            }
+        if (parse_date(records[i].follow_up_date, &follow_up_date)) {
+            time_t follow_up_time = mktime(&follow_up_date);
+            if (difftime(follow_up_time, now) >= 0) {
+                count ++;
+                printf("%2d. %s ",(i), records[i].patient_id);
+                printf(" %02d-%02d-%02d\n", follow_up_date.tm_mday, follow_up_date.tm_mon + 1, follow_up_date.tm_year % 100); // Debug output
+            } 
+            
+        } else {
+            printf("Failed to parse date: %s\n", records[i].follow_up_date); // Debug output
         }
+    }
+    
+    if (count == 0){
+        printf("No follow-up schedule.\n");
     }
 }
 
@@ -581,4 +681,3 @@ int main() {
 
     return 0;
 }
-
