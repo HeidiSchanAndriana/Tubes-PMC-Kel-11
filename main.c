@@ -451,51 +451,6 @@ void generate_income_report() {
     printf("Total Yearly Income: %.2f\n", yearly_income);
 }
 
-void generate_patient_statistics() {
-    int year;
-    printf("Enter year for patient statistics: ");
-    scanf("%d", &year);
-
-    int monthly_patient_count[12] = {0};
-    int total_patient_count = 0;
-
-    char diagnoses[MAX_RECORDS][100];
-    int diagnosis_count[MAX_RECORDS] = {0};
-    int diagnosis_index = 0;
-
-    for (int i = 0; i < record_count; i++) {
-        struct tm visit_date = {0};
-        strptime(records[i].visit_date, "%d %b %Y", &visit_date);
-        if (visit_date.tm_year + 1900 == year) {
-            monthly_patient_count[visit_date.tm_mon]++;
-            total_patient_count++;
-
-            int found = 0;
-            for (int j = 0; j < diagnosis_index; j++) {
-                if (strcmp(diagnoses[j], records[i].diagnosis) == 0) {
-                    diagnosis_count[j]++;
-                    found = 1;
-                    break;
-                }
-            }
-            if (!found) {
-                strcpy(diagnoses[diagnosis_index], records[i].diagnosis);
-                diagnosis_count[diagnosis_index++] = 1;
-            }
-        }
-    }
-
-    printf("Monthly Patient Count for %d:\n", year);
-    for (int i = 0; i < 12; i++) {
-        printf("Month %d: %d\n", i + 1, monthly_patient_count[i]);
-    }
-    printf("Total Yearly Patient Count: %d\n", total_patient_count);
-
-    printf("Diagnosis Statistics:\n");
-    for (int i = 0; i < diagnosis_index; i++) {
-        printf("%s: %d\n", diagnoses[i], diagnosis_count[i]);
-    }
-}
 
 // Fungsi untuk mengonversi nama bulan dari bahasa Indonesia ke bahasa Inggris
 const char* convert_month(const char* month) {
@@ -613,6 +568,59 @@ void check_follow_up() {
     
     if (count == 0){
         printf("No follow-up schedule.\n");
+    }
+}
+
+void generate_patient_statistics() {
+        /*
+    Fungsi untuk mengenerate statistik: 
+    - Menerima input "year" dan digunakan data "record"
+    - Mengprint jumlah pasien tiap bulan untuk suatu "year"
+    - Mengprint total pasien pada suatu "year"  
+    - mengprint jumlah pasien tiap suatu diagnosis pada suatu "year"
+    */
+    int year;
+    printf("Enter year for patient statistics: ");
+    scanf("%d", &year);
+
+    int monthly_patient_count[12] = {0};
+    int total_patient_count = 0;
+
+    char diagnoses[MAX_RECORDS][100];
+    int diagnosis_count[MAX_RECORDS] = {0};
+    int diagnosis_index = 0;
+
+    for (int i = 0; i < record_count; i++) {
+        struct tm visit_date = {0};
+        parse_date(records[i].visit_date ,&visit_date );
+        if (visit_date.tm_year + 1900 == year) {
+            monthly_patient_count[visit_date.tm_mon]++;
+            total_patient_count++;
+
+            int found = 0;
+            for (int j = 0; j < diagnosis_index; j++) {
+                if (strcmp(diagnoses[j], records[i].diagnosis) == 0) {
+                    diagnosis_count[j]++;
+                    found = 1;
+                    break;
+                }
+            }
+            if (!found) {
+                strcpy(diagnoses[diagnosis_index], records[i].diagnosis);
+                diagnosis_count[diagnosis_index++] = 1;
+            }
+        }
+    }
+
+    printf("Monthly Patient Count for %d:\n", year);
+    for (int i = 0; i < 12; i++) {
+        printf("Month %d: %d\n", i + 1, monthly_patient_count[i]);
+    }
+    printf("Total Yearly Patient Count: %d\n", total_patient_count);
+
+    printf("Diagnosis Statistics:\n");
+    for (int i = 0; i < diagnosis_index; i++) {
+        printf("%s: %d\n", diagnoses[i], diagnosis_count[i]);
     }
 }
 
