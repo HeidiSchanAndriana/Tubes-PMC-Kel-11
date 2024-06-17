@@ -623,7 +623,7 @@ void generate_income_report(GtkWidget *widget, gpointer data) {
         const char *year_text = gtk_entry_get_text(GTK_ENTRY(year_entry));
         int year = atoi(year_text);
 
-        double monthly_income[12] = {0};
+        int monthly_income[12] = {0};
         double yearly_income = 0;
         int search_year;
         int search_bulan;
@@ -664,7 +664,7 @@ void generate_income_report(GtkWidget *widget, gpointer data) {
         snprintf(report, sizeof(report), "Monthly Income Report for %d:\n", year);
         for (int i = 0; i < 12; i++) {
             char buffer[128];
-            snprintf(buffer, sizeof(buffer), "Month %d: %.2f\n", i + 1, monthly_income[i]);
+            snprintf(buffer, sizeof(buffer), "Month %d: %d\n", i + 1, monthly_income[i]);
             strcat(report, buffer);
         }
         char buffer[128];
@@ -842,14 +842,36 @@ int main(int argc, char *argv[]) {
         printf("Could not open file data2.csv for reading\n");
     } else {
         char line[500];
-        while (fgets(line, sizeof(line), file)) {
-            sscanf(line, "%d;%[^;];%[^;];%[^;];%[^;];%[^;];%f",
-                   &records[record_count].id, records[record_count].visit_date, records[record_count].patient_id, records[record_count].diagnosis,
-                   records[record_count].treatment, records[record_count].follow_up_date, &records[record_count].cost);
-            record_count++;
-        }
-        fclose(file);
+        fgets(line, sizeof(line), file); // Skip header line
+
+    while (fgets(line, sizeof(line), file)) {
+        MedicalRecord r;
+        char *token = strtok(line, ";");
+        r.id = atoi(token);
+
+        token = strtok(NULL, ";");
+        strcpy(r.visit_date, token);
+
+        token = strtok(NULL, ";");
+        strcpy(r.patient_id, token);
+
+        token = strtok(NULL, ";");
+        strcpy(r.diagnosis, token);
+
+        token = strtok(NULL, ";");
+        strcpy(r.treatment, token);
+
+        token = strtok(NULL, ";");
+        strcpy(r.follow_up_date, token);
+
+        token = strtok(NULL, ";");
+        r.cost = atof(token);
+
+        records[record_count++] = r;
     }
+
+    fclose(file);
+}
 
     GtkWidget *window;
     GtkWidget *grid;
