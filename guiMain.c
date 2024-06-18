@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <time.h>
 
 #define MAX_PATIENTS 1000
 #define MAX_RECORDS 1000
@@ -34,8 +35,20 @@ MedicalRecord records[MAX_RECORDS];
 int patient_count = 0;
 int record_count = 0;
 
+
+
 // Fungsi untuk menambahkan pasien baru
 void add_patient(GtkWidget *widget, gpointer data) {
+    FILE *fp = fopen("data.txt", "w"); // Ubah ke mode append agar tidak menimpa hasil sebelumnya
+
+    if (fp == NULL) {
+        printf("Error membuka file!\n");
+        return;
+    }
+
+    clock_t start, end;
+    double cpu_time_used;
+
     GtkWidget *dialog, *content_area;
     GtkDialogFlags flags = GTK_DIALOG_DESTROY_WITH_PARENT;
 
@@ -117,6 +130,12 @@ void add_patient(GtkWidget *widget, gpointer data) {
             fprintf(file, "%d;%s;%s;%s;%s;%s;%d;%s;%s\n", p.id, p.full_name, p.address, p.city, p.birth_place, p.birth_date, p.age, p.bpjs_number, p.patient_id);
             fclose(file);
             printf("Patient added successfully!\n");
+            end = clock();
+            cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+
+            fprintf(fp, "Time to add patient: %f seconds\n", cpu_time_used);
+            fclose(fp);
+
         }
     }
 
@@ -125,6 +144,17 @@ void add_patient(GtkWidget *widget, gpointer data) {
 
 // Fungsi untuk memperbarui pasien
 void update_patient(GtkWidget *widget, gpointer data) {
+    FILE *fp = fopen("data.txt", "w"); // Ubah ke mode append agar tidak menimpa hasil sebelumnya
+
+    if (fp == NULL) {
+        printf("Error membuka file!\n");
+        return;
+    }
+
+    clock_t start, end;
+    double cpu_time_used;
+    start = clock();
+
     GtkWidget *dialog, *content_area;
     GtkDialogFlags flags = GTK_DIALOG_DESTROY_WITH_PARENT;
 
@@ -221,6 +251,11 @@ void update_patient(GtkWidget *widget, gpointer data) {
                         }
                         fclose(file);
                         printf("Patient updated successfully!\n");
+                        end = clock();
+                        cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+
+                        fprintf(fp, "Time to add patient: %f seconds\n", cpu_time_used);
+                        fclose(fp);
                     }
                 }
                 break;
@@ -234,6 +269,17 @@ void update_patient(GtkWidget *widget, gpointer data) {
 // Fungsi untuk menampilkan daftar pasien
 // Fungsi untuk menghapus data pasien
 void delete_patient(GtkWidget *widget, gpointer data) {
+    FILE *fp = fopen("data.txt", "a"); // Ubah ke mode append agar tidak menimpa hasil sebelumnya
+
+    if (fp == NULL) {
+        printf("Error membuka file!\n");
+        return;
+    }
+
+    clock_t start, end;
+    double cpu_time_used;
+    start = clock();
+
     GtkWidget *dialog, *content_area;
     GtkDialogFlags flags = GTK_DIALOG_DESTROY_WITH_PARENT;
 
@@ -276,6 +322,11 @@ void delete_patient(GtkWidget *widget, gpointer data) {
                     fprintf(file, "%d;%s;%s;%s;%s;%s;%d;%s;%s\n", patients[i].id, patients[i].full_name, patients[i].address, patients[i].city, patients[i].birth_place, patients[i].birth_date, patients[i].age, patients[i].bpjs_number, patients[i].patient_id);
                 }
                 fclose(file);
+                end = clock();
+                cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+
+                fprintf(fp, "Time to add patient: %f seconds\n", cpu_time_used);
+                fclose(fp);
             }
         } else {
             GtkWidget *error_dialog;
@@ -289,6 +340,17 @@ void delete_patient(GtkWidget *widget, gpointer data) {
 }
 
 void search_patient(GtkWidget *widget, gpointer data) {
+    FILE *fp = fopen("data.txt", "a"); // Ubah ke mode append agar tidak menimpa hasil sebelumnya
+
+    if (fp == NULL) {
+        printf("Error membuka file!\n");
+        return;
+    }
+
+    clock_t start, end;
+    double cpu_time_used;
+    start = clock();
+
     GtkWidget *dialog, *content_area;
     GtkDialogFlags flags = GTK_DIALOG_DESTROY_WITH_PARENT;
 
@@ -323,6 +385,11 @@ void search_patient(GtkWidget *widget, gpointer data) {
             char patient_info[256];
             snprintf(patient_info, sizeof(patient_info), "ID: %d, Name: %s, Address: %s, City: %s, Birth Place: %s, Birth Date: %s, Age: %d, BPJS Number: %s, Patient ID: %s",
                      patients[patient_index].id, patients[patient_index].full_name, patients[patient_index].address, patients[patient_index].city, patients[patient_index].birth_place, patients[patient_index].birth_date, patients[patient_index].age, patients[patient_index].bpjs_number, patients[patient_index].patient_id);
+            end = clock();
+            cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+
+            fprintf(fp, "Time to add patient: %f seconds\n", cpu_time_used);
+            fclose(fp);
 
             GtkWidget *info_dialog;
             info_dialog = gtk_message_dialog_new(GTK_WINDOW(dialog), GTK_DIALOG_DESTROY_WITH_PARENT, GTK_MESSAGE_INFO, GTK_BUTTONS_OK, "%s", patient_info);
@@ -343,6 +410,17 @@ void search_patient(GtkWidget *widget, gpointer data) {
 
 // Fungsi untuk menambahkan rekam medis baru
 void add_medical_record(GtkWidget *widget, gpointer data) {
+    FILE *fp = fopen("data.txt", "a"); // Ubah ke mode append agar tidak menimpa hasil sebelumnya
+
+    if (fp == NULL) {
+        printf("Error membuka file!\n");
+        return;
+    }
+
+    clock_t start, end;
+    double cpu_time_used;
+    start = clock();
+
     GtkWidget *dialog, *content_area;
     GtkDialogFlags flags = GTK_DIALOG_DESTROY_WITH_PARENT;
 
@@ -412,6 +490,12 @@ void add_medical_record(GtkWidget *widget, gpointer data) {
             fprintf(file, "%d;%s;%s;%s;%s;%s;%.2f\n", r.id, r.visit_date, r.patient_id, r.diagnosis, r.treatment, r.follow_up_date, r.cost);
             fclose(file);
             printf("Medical record added successfully!\n");
+            end = clock();
+            cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+
+            fprintf(fp, "Time to add patient: %f seconds\n", cpu_time_used);
+            fclose(fp);
+            
         }
     }
 
@@ -420,6 +504,17 @@ void add_medical_record(GtkWidget *widget, gpointer data) {
 
 // Fungsi untuk menampilkan rekam medis pasien
 void show_medical_record(GtkWidget *widget, gpointer data) {
+    FILE *fp = fopen("data.txt", "a"); // Ubah ke mode append agar tidak menimpa hasil sebelumnya
+
+    if (fp == NULL) {
+        printf("Error membuka file!\n");
+        return;
+    }
+
+    clock_t start, end;
+    double cpu_time_used;
+    start = clock();
+
     GtkWidget *dialog, *content_area;
     GtkDialogFlags flags = GTK_DIALOG_DESTROY_WITH_PARENT;
 
@@ -452,6 +547,11 @@ void show_medical_record(GtkWidget *widget, gpointer data) {
                 strcat(record_text, record_info);
             }
         }
+        end = clock();
+        cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+
+        fprintf(fp, "Time to add patient: %f seconds\n", cpu_time_used);
+        fclose(fp);
 
         GtkWidget *record_label = gtk_label_new(record_text);
         gtk_label_set_justify(GTK_LABEL(record_label), GTK_JUSTIFY_LEFT);
@@ -465,6 +565,17 @@ void show_medical_record(GtkWidget *widget, gpointer data) {
 
 // Fungsi untuk menghapus rekam medis pasien berdasarkan ID
 void delete_medical_record(GtkWidget *widget, gpointer data) {
+    FILE *fp = fopen("data.txt", "a"); // Ubah ke mode append agar tidak menimpa hasil sebelumnya
+
+    if (fp == NULL) {
+        printf("Error membuka file!\n");
+        return;
+    }
+
+    clock_t start, end;
+    double cpu_time_used;
+    start = clock();
+
     GtkWidget *dialog, *content_area;
     GtkDialogFlags flags = GTK_DIALOG_DESTROY_WITH_PARENT;
 
@@ -504,6 +615,11 @@ void delete_medical_record(GtkWidget *widget, gpointer data) {
                     }
                     fclose(file);
                     printf("Medical record deleted successfully!\n");
+                    end = clock();
+                    cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+
+                    fprintf(fp, "Time to add patient: %f seconds\n", cpu_time_used);
+                    fclose(fp);
                 }
                 break;
             }
@@ -600,6 +716,17 @@ int parse_date(const char *date_str, struct tm *date) {
 
 // Fungsi untuk menghasilkan laporan pendapatan
 void generate_income_report(GtkWidget *widget, gpointer data) {
+    FILE *fp = fopen("data.txt", "a"); // Ubah ke mode append agar tidak menimpa hasil sebelumnya
+
+    if (fp == NULL) {
+        printf("Error membuka file!\n");
+        return;
+    }
+
+    clock_t start, end;
+    double cpu_time_used;
+    start = clock();
+
     GtkWidget *dialog, *content_area;
     GtkDialogFlags flags = GTK_DIALOG_DESTROY_WITH_PARENT;
 
@@ -670,6 +797,11 @@ void generate_income_report(GtkWidget *widget, gpointer data) {
         char buffer[128];
         snprintf(buffer, sizeof(buffer), "Total Yearly Income: %.2f\n", yearly_income);
         strcat(report, buffer);
+        end = clock();
+        cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+
+        fprintf(fp, "Time to add patient: %f seconds\n", cpu_time_used);
+        fclose(fp);
 
         GtkWidget *report_dialog = gtk_message_dialog_new(GTK_WINDOW(dialog), GTK_DIALOG_DESTROY_WITH_PARENT, GTK_MESSAGE_INFO, GTK_BUTTONS_OK, "%s", report);
         gtk_dialog_run(GTK_DIALOG(report_dialog));
@@ -680,6 +812,17 @@ void generate_income_report(GtkWidget *widget, gpointer data) {
 
 // Fungsi untuk menghasilkan statistik pasien
 void generate_patient_statistics(GtkWidget *widget, gpointer data) {
+    FILE *fp = fopen("data.txt", "a"); // Ubah ke mode append agar tidak menimpa hasil sebelumnya
+
+    if (fp == NULL) {
+        printf("Error membuka file!\n");
+        return;
+    }
+
+    clock_t start, end;
+    double cpu_time_used;
+    start = clock();
+
     GtkWidget *dialog, *content_area;
     GtkDialogFlags flags = GTK_DIALOG_DESTROY_WITH_PARENT;
 
@@ -749,7 +892,11 @@ void generate_patient_statistics(GtkWidget *widget, gpointer data) {
             snprintf(buffer, sizeof(buffer), "%s: %d\n", diagnoses[i], diagnosis_count[i]);
             strcat(report, buffer);
         }
+        end = clock();
+        cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
 
+        fprintf(fp, "Time to add patient: %f seconds\n", cpu_time_used);
+        fclose(fp);
         GtkWidget *report_dialog = gtk_message_dialog_new(GTK_WINDOW(dialog), GTK_DIALOG_DESTROY_WITH_PARENT, GTK_MESSAGE_INFO, GTK_BUTTONS_OK, "%s", report);
         gtk_dialog_run(GTK_DIALOG(report_dialog));
         gtk_widget_destroy(report_dialog);
@@ -759,6 +906,17 @@ void generate_patient_statistics(GtkWidget *widget, gpointer data) {
 
 // Fungsi untuk mengecek follow up pasien
 void check_follow_up(GtkWidget *widget, gpointer data) {
+    FILE *fp = fopen("data.txt", "a"); // Ubah ke mode append agar tidak menimpa hasil sebelumnya
+
+    if (fp == NULL) {
+        printf("Error membuka file!\n");
+        return;
+    }
+
+    clock_t start, end;
+    double cpu_time_used;
+    start = clock();
+
     GtkWidget *dialog, *content_area;
     GtkDialogFlags flags = GTK_DIALOG_DESTROY_WITH_PARENT;
 
@@ -808,6 +966,11 @@ void check_follow_up(GtkWidget *widget, gpointer data) {
         if (count == 0) {
             strcat(report, "No follow-up schedule.\n");
         }
+        end = clock();
+        cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+
+        fprintf(fp,"%f\n", cpu_time_used);
+        fclose(fp);
 
         GtkWidget *report_dialog = gtk_message_dialog_new(GTK_WINDOW(dialog), GTK_DIALOG_DESTROY_WITH_PARENT, GTK_MESSAGE_INFO, GTK_BUTTONS_OK, "%s", report);
         gtk_dialog_run(GTK_DIALOG(report_dialog));
@@ -928,7 +1091,6 @@ int main(int argc, char *argv[]) {
     check_follow_up_button = gtk_button_new_with_label("Check Follow-Up");
     g_signal_connect(check_follow_up_button, "clicked", G_CALLBACK(check_follow_up), window);
     gtk_grid_attach(GTK_GRID(grid), check_follow_up_button, 1, 5, 1, 1);
-
 
 
     gtk_widget_show_all(window);
